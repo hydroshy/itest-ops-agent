@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  ops_agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: itest_ops_agent
+    restart: always
+    ports:
+      - "${PORT:-3099}:3099"
+    environment:
+      - PORT=3099
+      - TARGET_CONTAINER_NAME=nest_lorawan_app
+      - REPO_DIR=/app/repo
+      - DB_HOST=${DB_HOST:-postgres_db}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_USERNAME=${DB_USERNAME:-admin}
+      - DB_PASSWORD=${DB_PASSWORD:-mason}
+      - DB_DATABASE=${DB_NAME:-dvt}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../itest-system:/app/repo:ro
+    networks:
+      - itest_net
+
+networks:
+  itest_net:
+    name: itest-system_lorawan_net
+    external: true

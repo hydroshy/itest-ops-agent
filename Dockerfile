@@ -1,0 +1,19 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install git and curl for healthchecks
+RUN apk add --no-cache git curl
+
+COPY package*.json ./
+RUN npm install --omit=dev --no-audit --no-fund
+
+COPY server.js ./
+COPY ui.js ./
+
+EXPOSE 3099
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3099/health || exit 1
+
+CMD ["node", "server.js"]
